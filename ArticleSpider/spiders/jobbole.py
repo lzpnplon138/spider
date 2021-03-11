@@ -8,5 +8,9 @@ class JobboleSpider(scrapy.Spider):
     start_urls = ['http://blog.jobbole.com/']
 
     def parse(self, response):
-        re_selector = response.xpath('/html/body/div[3]/div[3]/div[1]/div[1]/h1')
+        """
+        1.获取文章列表页中的文章url并交给scrapy下载后并进行解析
+        2.获取下一页的url并交给scrapy进程下载, 下载完成后交给parse
+        """
+        post_urls = response.css('.floated-thumb .post-thumb a')
         pass
