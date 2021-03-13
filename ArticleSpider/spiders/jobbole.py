@@ -7,6 +7,7 @@ from scrapy.http import Request
 from urllib import parse
 
 from ArticleSpider.items import JobBoleArticleItem
+from ArticleSpider.utils.common import get_md5
 
 
 class JobboleSpider(scrapy.Spider):
@@ -60,6 +61,7 @@ class JobboleSpider(scrapy.Spider):
 
         article_item["title"] = title
         article_item["url"] = response.url
+        article_item["url_object_id"] = get_md5(response.url)
         try:
             create_date = datetime.datetime.strptime(create_date, "%Y/%m/%d").date()
         except Exception as e:
@@ -71,3 +73,5 @@ class JobboleSpider(scrapy.Spider):
         article_item["fav_nums"] = fav_nums
         article_item["tags"] = tags
         article_item["content"] = content
+
+        yield article_item
