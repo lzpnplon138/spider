@@ -2,9 +2,11 @@
 import codecs
 import json
 import MySQLdb
+import MySQLdb.cursors
+from scrapy.exporters import JsonItemExporter
+from twisted.enterprise import adbapi
 
 from scrapy.pipelines.images import ImagesPipeline
-from scrapy.exporters import JsonItemExporter
 
 
 class ArticleSpiderPipeline(object):
@@ -45,7 +47,7 @@ class JsonExporterPipeline(object):
 # 后期mysql存储速度跟不上爬取速度, 会阻塞
 class MysqlPipeline(object):
     def __init__(self):
-        self.conn = MySQLdb.connect(host='192.168.4.40', user='root', password='123456', database='article',
+        self.conn = MySQLdb.connect(host='192.168.4.40', user='root', password='123456', db='article',
                                     charset='utf8', use_unicode=True)
         self.cursor = self.conn.cursor()
 
@@ -61,7 +63,39 @@ class MysqlPipeline(object):
 
 # 异步插入mysql
 class MysqlTwistedPipeline(object):
+    def __init__(self, db_pool):
+        self.db_pool = db_pool
 
+    @classmethod
+    def from_settings(cls, settings):
+        db_params = dict(
+            host=settings['MYSQL_HOST'],
+            user=settings['MYSQL_USER'],
+            password=settings['MYSQL_PASSWD'],
+            db=settings['MYSQL_DB'],
+            charset='utf8',
+            use_unicode=True,
+            cursorclass=MySQLdb.cursors.DictCursor
+        )
+        db_pool = adbapi.ConnectionPool('MySQLdb', **db_params)
+        return cls(db_pool)
+
+    def process_item(self, item, spider):
+        # 使用twisted将mysql插入变成异步执行
+        query = self.db_pool.runInteraction(self.do_insert, item)
+        query.addErrback(self.handle_error)  # 处理异常
+
+    def handle_error(self, failure):
+        # 处理异步插入的异常
+        print(failure)
+
+    def do_insert(self, cursor, item):
+        insert_sql = """
+          insert into jobbole_article(title, url, url_object_id, create_date, content)
+          VALUES (%s, %s, %s, %s, %s)
+        """
+        cursor.execute(insert_sql,
+                       (item['title'], item['url'], item['url_object_id'], item['create_date'], item['content']))
 
 
 class ArticleImagePipeline(ImagesPipeline):
