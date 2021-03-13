@@ -22,7 +22,7 @@ class JsonWithEncodingPipeline(object):
         self.file.write(lines)
         return item
 
-    def spider_closed(self, spider):
+    def close_spider(self, spider):
         self.file.close()
 
 
@@ -42,10 +42,26 @@ class JsonExporterPipeline(object):
         return item
 
 
-
+# 后期mysql存储速度跟不上爬取速度, 会阻塞
 class MysqlPipeline(object):
     def __init__(self):
-        self.conn = MySQLdb.connect(host='192.168.4.40', user='root', password='123456')
+        self.conn = MySQLdb.connect(host='192.168.4.40', user='root', password='123456', database='article',
+                                    charset='utf8', use_unicode=True)
+        self.cursor = self.conn.cursor()
+
+    def process_item(self, item, spider):
+        insert_sql = """
+            insert into jobbole_article(title, url, url_object_id, create_date, content)
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        self.cursor.execute(insert_sql,
+                            (item['title'], item['url'], item['url_object_id'], item['create_date'], item['content']))
+        self.conn.commit()
+
+
+# 异步插入mysql
+class MysqlTwistedPipeline(object):
+
 
 
 class ArticleImagePipeline(ImagesPipeline):
