@@ -95,6 +95,6 @@ IMAGES_STORE = os.path.join(BASE_DIR, 'images')
 
 MYSQL_HOST = '192.168.4.40'
 MYSQL_USER = 'root'
-MYSQL_PASSWD = '123456'
+MYSQL_PASSWORD = '123456'
 MYSQL_DB = 'article'
 

@@ -71,7 +71,7 @@ class MysqlTwistedPipeline(object):
         db_params = dict(
             host=settings['MYSQL_HOST'],
             user=settings['MYSQL_USER'],
-            password=settings['MYSQL_PASSWD'],
+            password=settings['MYSQL_PASSWORD'],
             db=settings['MYSQL_DB'],
             charset='utf8',
             use_unicode=True,
