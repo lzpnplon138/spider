@@ -76,6 +76,6 @@ def is_login():
         return True
 
 
-zhihu_login('17757177075', '11250519lnmj.')
+zhihu_login('miaojuncn@163.com', '11250519lnmj.')
 
 # get_index()
