@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
+import json
 import scrapy
 
 
@@ -17,13 +18,16 @@ class ZhihuSpider(scrapy.Spider):
     def parse(self, response):
         pass
 
+    def parse_detail(self, response):
+        pass
+
     # 知乎需要登录才能爬取, 重写scrapy.Spider.start_requests方法
     def start_requests(self):
-        return [(scrapy.Request('https://www.zhihu.com/#signin', callback=self.login))]
+        return [(scrapy.Request('https://www.zhihu.com/#signin', headers=self.headers, callback=self.login))]
 
     def login(self, response):
-        response = session.get('https://www.zhihu.com', headers=headers)
-        match_obj = re.search('.*<input type="hidden" name="_xsrf" value="(.*?)"/', response.text)
+        response = response.text
+        match_obj = re.match('.*<input type="hidden" name="_xsrf" value="(.*?)"/', response.text, re.DOTALL)
         xsrf = ''
         if match_obj:
             xsrf = match_obj.group(1)
@@ -40,10 +44,12 @@ class ZhihuSpider(scrapy.Spider):
                 url=post_url,
                 formdata=post_data,
                 headers=self.headers,
-                callback=
+                callback=self.check_login
             )]
-
 
     def check_login(self, response):
         """验证服务器的返回数据判断是否成功"""
-
+        text_json = json.loads(response.text)
+        if 'msg' in text_json and text_json['msg'] == '登录成功':
+            for url in self.start_urls:
+                yield scrapy.Request(url, dont_filter=True, headers=self.headers)
