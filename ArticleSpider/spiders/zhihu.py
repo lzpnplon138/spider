@@ -5,6 +5,9 @@ from PIL import Image
 from urllib import parse
 import json
 import scrapy
+from scrapy.loader import ItemLoader
+
+from ArticleSpider.items import ZhihuAnswerItem, ZhihuQuestionItem
 
 
 class ZhihuSpider(scrapy.Spider):
@@ -80,5 +83,20 @@ class ZhihuSpider(scrapy.Spider):
                 request_url = match_obj.group(1)
                 question_id = match_obj.group(2)
 
+                yield scrapy.Request(request_url, headers=self.headers, meta={'question_id': int(question_id)}, callback=self.parse_question)
+
     def parse_question(self, response):
-        pass
+        item_loader = ItemLoader(item=ZhihuQuestionItem(), response=response)
+        item_loader.add_value('zhihu_id', response.meta.get('question_id', ''))
+        item_loader.add_css('title', 'h1.QuestionHeader-title::text')
+        item_loader.add_css('content', '.QuestionRichText')
+        item_loader.add_value('url', response.url)
+        item_loader.add_css('answer_num', '.List-headerText span::text')
+        item_loader.add_css('comments_num', '.QuestionHeader-Comment > button::text')
+        item_loader.add_css('watch_user_num', '.NumberBoard-item .NumberBoard-value::text')
+        item_loader.add_css('click_num', '.NumberBoard-item .NumberBoard-value::text')
+        item_loader.add_css('topics', '.TopicLink .Popover div::text')
+
+        question_item = item_loader.load_item()
+
+        yield question_item

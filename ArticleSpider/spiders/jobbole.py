@@ -31,10 +31,10 @@ class JobboleSpider(scrapy.Spider):
             yield Request(url=parse.urljoin(response.url, next_urls), callback=self.parse)
 
     def parse_detail(self, response):
-        article_item = JobBoleArticleItem()
+        # article_item = JobBoleArticleItem()
 
         front_image_url = response.meta.get('front_image_url', '')  # 文章封面图
-        # item_loader = ItemLoader(item=JobBoleArticleItem(), response=response)
+
         item_loader = ArticleItemLoader(item=JobBoleArticleItem(), response=response)
         item_loader.add_css('title', '.entry-header h1::text')
         item_loader.add_value('url', response.url)
