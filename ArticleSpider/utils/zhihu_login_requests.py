@@ -37,7 +37,7 @@ def get_xsrf():
     response = session.get("https://www.zhihu.com", headers=headers)
     match_obj = re.match('.*name="_xsrf" value="(.*?)"', response.text)
     if match_obj:
-        return (match_obj.group(1))
+        return match_obj.group(1)
     else:
         return ""
 
