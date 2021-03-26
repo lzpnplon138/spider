@@ -6,6 +6,7 @@
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
+from fake_useragent import UserAgent
 
 
 class ArticlespiderSpiderMiddleware(object):
@@ -60,8 +61,18 @@ class RandomUserAgentMiddleware(object):
     """随机更换user agent"""
 
     def __init__(self, crawl):
-        pass
+        super(RandomUserAgentMiddleware, self).__init__()
+        self.ua = UserAgent()
+        self.ua_type = crawl.settings.get('USER_AGENT_TYPE', 'random')
 
     @classmethod
     def from_crawler(cls, crawl):
         return cls(crawl)
+
+    def process_request(self, request, spider):
+        def get_ua():
+            return getattr(self.ua, self.ua_type)
+
+        tmp = get_ua()
+
+        request.headers.setdefault('USER_AGENT', get_ua())

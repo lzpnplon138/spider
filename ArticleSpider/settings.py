@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 
-
 BOT_NAME = 'ArticleSpider'
 
 SPIDER_MODULES = ['ArticleSpider.spiders']
@@ -45,10 +44,9 @@ ROBOTSTXT_OBEY = False
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-   'ArticleSpider.middlewares.MyCustomDownloaderMiddleware': 543,
+    'ArticleSpider.middlewares.RandomUserAgentMiddleware': 543,
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
 }
-
 # Enable or disable extensions
 # See http://scrapy.readthedocs.org/en/latest/topics/extensions.html
 # EXTENSIONS = {
@@ -101,3 +99,6 @@ MYSQL_DB = 'article'
 
 SQL_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 SQL_DATE_FORMAT = "%Y-%m-%d"
+
+# 还有ie, chrome, safari, firefox
+USER_AGENT_TYPE = 'random'
