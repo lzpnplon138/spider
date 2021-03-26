@@ -54,3 +54,14 @@ class ArticlespiderSpiderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+
+class RandomUserAgentMiddleware(object):
+    """随机更换user agent"""
+
+    def __init__(self, crawl):
+        pass
+
+    @classmethod
+    def from_crawler(cls, crawl):
+        return cls(crawl)
