@@ -25,6 +25,11 @@ class ZhihuSpider(scrapy.Spider):
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.75 Safari/537.36'
     }
 
+    # 设置自己的setting
+    custom_settings = {
+        'COOKIES_ENABLED': True
+    }
+
     # 知乎需要登录才能爬取, 重写scrapy.Spider.start_requests方法
     def start_requests(self):
         t = str(int(time.time() * 1000))
