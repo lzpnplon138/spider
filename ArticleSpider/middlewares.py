@@ -6,6 +6,7 @@
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
+from scrapy.http import HtmlResponse
 from fake_useragent import UserAgent
 
 from ArticleSpider.tools.crawl_xici_ip import GetIP
@@ -80,5 +81,27 @@ class RandomUserAgentMiddleware(object):
 
 class RandomProxyMiddleware(object):
     """动态设置ip代理"""
+
     def process_request(self, request, spider):
         request.meta['proxy'] = GetIP.get_random_ip()
+
+
+class JSPageMiddleware(object):
+    # 通过chrome请求动态网页
+    def process_request(self, request, spider):
+        if spider.name == "jobbole":
+            # browser = webdriver.Chrome(executable_path="D:/Temp/chromedriver.exe")
+            spider.browser.get(request.url)
+            import time
+            time.sleep(3)
+            print("访问:{0}".format(request.url))
+
+            return HtmlResponse(url=spider.browser.current_url, body=spider.browser.page_source, encoding="utf-8",
+                                request=request)
+
+# from pyvirtualdisplay import Display
+# display = Display(visible=0, size=(800, 600))
+# display.start()
+#
+# browser = webdriver.Chrome()
+# browser.get()
